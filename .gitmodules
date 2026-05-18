@@ -1,0 +1,14 @@
+[submodule "SIGMAV2-APPFRONT-END"]
+	path = SIGMAV2-APPFRONT-END
+	url = https://github.com/CesarTokai/SIGMAV2-APPFRONT-END.git
+	branch = implementacion_qr_funciones
+[submodule "SIGMAV2-SERVICES"]
+	path = SIGMAV2-SERVICES
+	url = https://github.com/CesarTokai/SIGMAV2-SERVICES.git
+	branch = implementacion_qr_funciones
+[submodule "BD_SIGMAV2"]
+	path = BD_SIGMAV2
+	url = https://github.com/CesarTokai/BD_SIGMAV2.git
+[submodule "sigmav2_scanner_mobile"]
+	path = sigmav2_scanner_mobile
+	url = https://github.com/CesarTokai/sigmav2_scanner_mobile.git
