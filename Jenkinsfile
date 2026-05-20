@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DEPLOY_HOST = '74.208.167.90'
         DEPLOY_PATH = '/home/deployments/apps/SIGMA-SERVER'
     }
 
@@ -14,16 +13,20 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    echo "Clonando/Actualizando repo en workspace..."
-                    cd ${WORKSPACE}
+                    cd ${DEPLOY_PATH}
+                    echo "Pulling repo..."
+                    git pull origin main
                     
-                    echo "Sincronizando a servidor..."
-                    docker exec sigmav2_backend pwd > /dev/null 2>&1 && \
-                    docker exec -w ${DEPLOY_PATH} sigmav2_backend git pull origin main && \
-                    docker exec -w ${DEPLOY_PATH} sigmav2_backend git submodule update --remote --merge && \
-                    docker exec -w ${DEPLOY_PATH} sigmav2_backend docker-compose up -d --build
+                    echo "Updating submodules to implementacion_qr_funciones..."
+                    git submodule foreach -q git checkout implementacion_qr_funciones
+                    git submodule foreach -q git pull origin implementacion_qr_funciones
                     
+                    echo "Rebuilding Docker..."
+                    docker-compose up -d --build
+                    
+                    echo "Waiting..."
                     sleep 10
+                    
                     echo "Health check..."
                     curl -s http://localhost/sigmav2/api/health || echo "Done"
                 '''
@@ -33,10 +36,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Deploy OK'
+            echo '✅ Deploy exitoso'
         }
         failure {
-            echo '❌ Deploy FAILED'
+            echo '❌ Deploy fallido'
         }
     }
 }
