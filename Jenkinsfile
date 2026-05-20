@@ -13,8 +13,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    echo "Updating repo..."
-                    docker exec sigmav2_backend bash -c "
+                    # Ejecuta directamente en el host usando SSH
+                    ssh -o StrictHostKeyChecking=no root@localhost "
                         cd ${DEPLOY_PATH}
                         git pull origin main
                         
