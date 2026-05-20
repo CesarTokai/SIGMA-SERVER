@@ -13,23 +13,25 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                sh '''
-                    ssh -o StrictHostKeyChecking=no root@${DEPLOY_HOST} "
-                        cd ${DEPLOY_PATH}
-                        git pull origin main
+                withCredentials([sshUserPrivateKey(credentialsId: 'deploy-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                    sh '''
+                        ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${SSH_USER}@${DEPLOY_HOST} "
+                            cd ${DEPLOY_PATH}
+                            git pull origin main
+                            
+                            echo 'Updating submodules to implementacion_qr_funciones...'
+                            git submodule foreach -q git checkout implementacion_qr_funciones
+                            git submodule foreach -q git pull origin implementacion_qr_funciones
+                            
+                            echo 'Rebuilding Docker...'
+                            docker-compose up -d --build
+                        "
                         
-                        echo 'Updating submodules to implementacion_qr_funciones...'
-                        git submodule foreach -q git checkout implementacion_qr_funciones
-                        git submodule foreach -q git pull origin implementacion_qr_funciones
-                        
-                        echo 'Rebuilding Docker...'
-                        docker-compose up -d --build
-                    "
-                    
-                    sleep 10
-                    echo "Health check..."
-                    curl -s http://localhost/sigmav2/api/health || echo "Done"
-                '''
+                        sleep 10
+                        echo "Health check..."
+                        curl -s http://localhost/sigmav2/api/health || echo "Done"
+                    '''
+                }
             }
         }
     }
