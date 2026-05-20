@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DEPLOY_PATH = '/home/deployments/apps/SIGMA-SERVER'
+        DEPLOY_HOST = '74.208.167.90'
     }
 
     triggers {
@@ -13,8 +14,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    # Ejecuta directamente en el host usando SSH
-                    ssh -o StrictHostKeyChecking=no root@localhost "
+                    ssh -o StrictHostKeyChecking=no root@${DEPLOY_HOST} "
                         cd ${DEPLOY_PATH}
                         git pull origin main
                         
